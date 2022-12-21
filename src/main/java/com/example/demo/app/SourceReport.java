@@ -1,13 +1,14 @@
 package com.example.demo.app;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SourceReport {
     private final int number;
 
-    private int generatedRequestCount;
-    private int processedRequestCount;
-    private int rejectedRequestCount;
+    private AtomicInteger generatedRequestCount = new AtomicInteger();
+    private AtomicInteger processedRequestCount = new AtomicInteger();
+    private AtomicInteger rejectedRequestCount = new AtomicInteger();
 
     private BigDecimal requestServiceTime;
     private BigDecimal requestTimeInBuffer;
@@ -23,15 +24,15 @@ public class SourceReport {
     }
 
     public synchronized int getGeneratedRequestCount() {
-        return generatedRequestCount;
+        return generatedRequestCount.get();
     }
 
     public synchronized int getProcessedRequestCount() {
-        return processedRequestCount;
+        return processedRequestCount.get();
     }
 
     public synchronized int getRejectedRequestCount() {
-        return rejectedRequestCount;
+        return rejectedRequestCount.get();
     }
 
     public synchronized BigDecimal getRequestServiceTime() {
@@ -43,15 +44,15 @@ public class SourceReport {
     }
 
     public synchronized void incrementGeneratedRequestCount() {
-        ++generatedRequestCount;
+        generatedRequestCount.incrementAndGet();
     }
 
     public synchronized void incrementProcessedRequestCount() {
-        ++processedRequestCount;
+        processedRequestCount.incrementAndGet();
     }
 
     public synchronized void incrementRejectedRequestCount() {
-        ++rejectedRequestCount;
+        rejectedRequestCount.incrementAndGet();
     }
 
     public synchronized void addRequestServiceTime(long requestServiceTime) {

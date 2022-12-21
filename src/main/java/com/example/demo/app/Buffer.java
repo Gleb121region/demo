@@ -1,18 +1,17 @@
 package com.example.demo.app;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Buffer {
-    private int occupiedCells;
-
-    private final List<Request> requests;
+    private final Vector<Request> requests;
+    private AtomicInteger occupiedCells = new AtomicInteger();
 
     private final Report report;
     private final Object bufferNotEmptyNotifier;
 
     public Buffer(int size, Report report, Object bufferNotEmptyNotifier) {
-        this.requests = new ArrayList<>(size);
+        this.requests = new Vector<>(size);
         this.report = report;
         this.bufferNotEmptyNotifier = bufferNotEmptyNotifier;
         for (int i = 0; i < size; i++) {
@@ -25,7 +24,7 @@ public class Buffer {
         requests.set(index, null);
         System.out.println("Buffer  : request " + request.getNumber() + " taken for processing");
         System.out.println(request.getCostTransportation() + " " + request.getPrepayment());
-        --occupiedCells;
+        occupiedCells.decrementAndGet();
         return request;
     }
 
@@ -53,7 +52,7 @@ public class Buffer {
         Request oldRequest = requests.get(index);
         if (oldRequest == null) {
             requests.set(index, request);
-            ++occupiedCells;
+            occupiedCells.incrementAndGet();
             synchronized (bufferNotEmptyNotifier) {
                 bufferNotEmptyNotifier.notify();
             }
@@ -66,10 +65,10 @@ public class Buffer {
     }
 
     public boolean isEmpty() {
-        return occupiedCells == 0;
+        return occupiedCells.get() == 0;
     }
 
-    public List<Request> getRequestsList() {
+    public Vector<Request> getRequestsList() {
         return requests;
     }
 }

@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Report {
     private DeviceManager deviceManager;
 
-    private final List<DeviceReport> deviceReports;
-    private final List<SourceReport> sourceReports;
+    private final Vector<DeviceReport> deviceReports;
+    private final Vector<SourceReport> sourceReports;
     private final int bufferSize;
 
     private int totalRequestCount;

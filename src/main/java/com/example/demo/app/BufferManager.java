@@ -1,6 +1,6 @@
 package com.example.demo.app;
 
-import java.util.List;
+import java.util.Vector;
 
 public class BufferManager {
     private int indexOfLastRequest;
@@ -13,7 +13,7 @@ public class BufferManager {
 
     public void emplace(Request request) {
         synchronized (buffer) {
-            List<Request> requestsList = buffer.getRequestsList();
+            Vector<Request> requestsList = buffer.getRequestsList();
             for (int i = 0; i < requestsList.size(); i++) {
                 if (requestsList.get(i) == null) {
                     buffer.set(i, request);
