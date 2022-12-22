@@ -77,7 +77,12 @@ public class Report {
     }
 
     public void addRequestTimeInBuffer(int number, long requestTimeInBuffer) {
-        sourceReports.get(number).addRequestTimeInBuffer(requestTimeInBuffer);
+        try {
+            sourceReports.get(number).addRequestTimeInBuffer(requestTimeInBuffer);
+        }
+        catch (Exception e){
+
+        }
     }
 
     public void addDeviceDownTime(int number, long downTime) {
@@ -155,9 +160,12 @@ public class Report {
             cells.get(0).setCellValue("Source " + report.getNumber());
             cells.get(1).setCellValue(report.getGeneratedRequestCount());
             cells.get(2).setCellValue(report.getRejectedRequestCount());
-            cells.get(3).setCellValue(report.getProcessedRequestCount() + report.getRejectedRequestCount() == 0
-                    ? 0
-                    : (double) report.getRejectedRequestCount() / (report.getProcessedRequestCount() + report.getRejectedRequestCount()));
+            if (report.getRejectedRequestCount() == 0) {
+                cells.get(3).setCellValue(0);
+            } else {
+                int index = report.getNumber() + 2;
+                cells.get(3).setCellFormula("c" + index + "/b" + index);
+            }
             cells.get(4).setCellValue(report.getRequestTimeInBuffer().doubleValue());
             cells.get(5).setCellValue(report.getRequestServiceTime().doubleValue());
             cells.get(6).setCellValue(report.getRequestServiceTime().add(report.getRequestTimeInBuffer()).doubleValue());

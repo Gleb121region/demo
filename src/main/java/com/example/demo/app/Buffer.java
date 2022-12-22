@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Buffer {
-    private final Vector<Request> requests;
+    private Vector<Request> requests;
     private AtomicInteger occupiedCells = new AtomicInteger();
 
     private final Report report;
