@@ -10,7 +10,7 @@ public class Request {
     private PaymentType paymentType; // // тип оплаты
     private boolean problemsWithFreight; // есть проблемы с фрахтом
     private long arrivalTime; // время создания заявки
-
+    private int tmp;
     public Request(int number, int sourceNumber, int numberOfDaysBeforePayment,
                    double costTransportation, double prepayment, double freight,
                    boolean areProblemsWithFreight, PaymentType paymentType, long arrivalTime) {
@@ -37,7 +37,11 @@ public class Request {
         return number;
     }
 
-    public int getSourceNumber() {
+    public int getSourceNumber() throws Exception {
+        if (tmp == sourceNumber) {
+            throw new Exception("This request will count second time");
+        }
+        tmp = sourceNumber;
         return sourceNumber;
     }
 

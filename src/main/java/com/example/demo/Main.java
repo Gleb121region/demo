@@ -14,9 +14,9 @@ public class Main {
     public static void main(String[] args) {
         boolean stepMode = false;
         final int SIMULATION_TIME = 10 * MILLISECONDS_PER_SECOND;
-        final int BUFFER_SIZE = 3;
-        final int SOURCES_COUNT = 5;
-        final int DEVICES_COUNT = 3;
+        final int BUFFER_SIZE = 6;
+        final int SOURCES_COUNT = 6;
+        final int DEVICES_COUNT = 10;
 
         Scanner in = new Scanner(System.in);
 

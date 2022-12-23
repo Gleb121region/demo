@@ -60,7 +60,10 @@ public class Buffer {
             requests.set(getOldestRequest(), request);
             report.addRequestTimeInBuffer(oldRequest.getNumber(), System.currentTimeMillis() - oldRequest.getArrivalTime());
             System.out.println("Request " + oldRequest.getNumber() + " canceled");
-            report.incrementRejectedRequestCount(oldRequest.getSourceNumber());
+            try {
+                report.incrementRejectedRequestCount(oldRequest.getSourceNumber());
+            } catch (Exception ignored) {
+            }
         }
     }
 

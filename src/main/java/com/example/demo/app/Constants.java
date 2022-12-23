@@ -7,7 +7,7 @@ public class Constants {
     public static final int GENERATOR_MAX_INTEREST_FREIGHT = 10;
     public static final int GENERATOR_MIN_INTEREST_FREIGHT = 100;
 
-    public static final double LAMBDA = 0.26;
+    public static final double LAMBDA = 1;
     public static final double MIN_COST_TRANSPORTATION = 5_000;
     public static final double MIN_PREPAYMENT = 100;
     public static final double COST_PER_KM = 55;

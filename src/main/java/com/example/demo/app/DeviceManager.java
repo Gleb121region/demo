@@ -91,7 +91,10 @@ public class DeviceManager implements Runnable {
         buffer.getRequestsList().forEach(request -> {
             if (request != null) {
                 ResponsesWriter.requestRejection(request);
-                report.incrementRejectedRequestCount(request.getSourceNumber());
+                try {
+                    report.incrementRejectedRequestCount(request.getSourceNumber());
+                } catch (Exception ignored) {
+                }
                 report.addRequestTimeInBuffer(request.getNumber(), endWorkTime - request.getArrivalTime());
                 System.out.println("Request " + request.getNumber() + " refused");
             }

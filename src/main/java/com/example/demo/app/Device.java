@@ -69,8 +69,14 @@ public class Device implements Runnable {
                 Thread.sleep((long) (random.nextDouble() * (BETA - ALPHA + 1)) + ALPHA);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                report.incrementRejectedRequestCount(request.getSourceNumber());
-                report.addRequestTimeInBuffer(request.getSourceNumber(), startBusyTime - request.getArrivalTime());
+                try {
+                    report.incrementRejectedRequestCount(request.getSourceNumber());
+                } catch (Exception ex) {
+                }
+                try {
+                    report.addRequestTimeInBuffer(request.getSourceNumber(), startBusyTime - request.getArrivalTime());
+                } catch (Exception ex) {
+                }
 
                 ResponsesWriter.requestRejection(request);
                 System.out.println("Request " + request.getNumber() + " refused");
@@ -81,10 +87,15 @@ public class Device implements Runnable {
                     Payment.fileOutput(request, ResponsesWriter.getWorkbook(), ResponsesWriter.getResponsesFileName());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
             }
-            report.incrementProcessedRequestCount(request.getSourceNumber());
-            report.addRequestServiceTime(request.getSourceNumber(), System.currentTimeMillis() - request.getArrivalTime());
+            try {
+                report.incrementProcessedRequestCount(request.getSourceNumber());
+            } catch (Exception e) {
+            }
+            try {
+                report.addRequestServiceTime(request.getSourceNumber(), System.currentTimeMillis() - request.getArrivalTime());
+            } catch (Exception e) {
+            }
             report.addDeviceBusyTime(number, System.currentTimeMillis() - startBusyTime);
             System.out.println("Device " + number + ": finish process request " + request.getNumber());
             isFree = true;

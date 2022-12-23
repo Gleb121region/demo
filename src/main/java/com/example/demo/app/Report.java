@@ -80,8 +80,7 @@ public class Report {
         try {
             sourceReports.get(number).addRequestTimeInBuffer(requestTimeInBuffer);
         }
-        catch (Exception e){
-
+        catch (Exception ignored) {
         }
     }
 
@@ -116,11 +115,10 @@ public class Report {
                     .append(String.format(" | %7s", "Status"))
                     .append(String.format(" %2s", "|\n"))
                     .append("----------------------\n");
-            ;
             int i = 0;
             for (Boolean status : deviceManager.getDeviceStatuses()) {
                 stringBuilder
-                        .append(String.format("%10s", (deviceManager.getDevicePointer() == i ? "*" : "") + "Device " + i++))
+                        .append(String.format("%10s", (status ? " " : "*") + "Device " + i++))
                         .append(String.format(" | %7s", status ? "Free" : "Busy"))
                         .append(String.format(" %2s", "|\n"));
             }
@@ -276,7 +274,7 @@ public class Report {
             totalRequestTimeInSystem = totalRequestTimeInSystem.add(sourceReport.getRequestTimeInBuffer().add(sourceReport.getRequestServiceTime()));
         });
 
-        failureProbability = (double) rejectedRequestCount.get() / (rejectedRequestCount.get() + processedRequestCount.get());
+        failureProbability = (double) rejectedRequestCount.get() / (totalRequestCount);
 
         deviceReports.forEach(deviceReport -> {
             totalDeviceBusyTime = totalDeviceBusyTime.add(deviceReport.getBusyTime());
