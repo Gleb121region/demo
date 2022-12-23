@@ -114,11 +114,11 @@ public class Report {
             stringBuilder.append(String.format("\n%10s", "Device"))
                     .append(String.format(" | %7s", "Status"))
                     .append(String.format(" %2s", "|\n"))
-                    .append("----------------------\n");
+                    .append("----------------------\n");;
             int i = 0;
             for (Boolean status : deviceManager.getDeviceStatuses()) {
                 stringBuilder
-                        .append(String.format("%10s", (status ? " " : "*") + "Device " + i++))
+                        .append(String.format("%10s", (deviceManager.getDevicePointer() == i ? "*" : "") + "Device " + i++))
                         .append(String.format(" | %7s", status ? "Free" : "Busy"))
                         .append(String.format(" %2s", "|\n"));
             }

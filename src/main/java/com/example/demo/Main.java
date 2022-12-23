@@ -12,7 +12,7 @@ import static com.example.demo.app.Constants.MILLISECONDS_PER_SECOND;
 
 public class Main {
     public static void main(String[] args) {
-        boolean stepMode = false;
+        boolean stepMode = true;
         final int SIMULATION_TIME = 10 * MILLISECONDS_PER_SECOND;
         final int BUFFER_SIZE = 6;
         final int SOURCES_COUNT = 6;

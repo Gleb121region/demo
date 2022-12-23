@@ -95,19 +95,21 @@ public class DeviceManager implements Runnable {
                     report.incrementRejectedRequestCount(request.getSourceNumber());
                 } catch (Exception ignored) {
                 }
-                report.addRequestTimeInBuffer(request.getNumber(), endWorkTime - request.getArrivalTime());
+                try {
+                    report.addRequestTimeInBuffer(request.getSourceNumber(), endWorkTime - request.getArrivalTime());
+                } catch (Exception ignored) {
+                }
                 System.out.println("Request " + request.getNumber() + " refused");
             }
         });
     }
 
-
     private Device selectDevice() throws Exception {
         Device device;
         synchronized (devices) {
             for (int i = devicePointer; i < devices.size(); i++) {
-                device = devices.get(i);
-                if (device.isFree()) {
+                if ((device = devices.get(i)).isFree()) {
+                    devicePointer = i;
                     return device;
                 }
             }
