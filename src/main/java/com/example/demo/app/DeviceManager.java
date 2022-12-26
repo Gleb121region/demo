@@ -107,7 +107,7 @@ public class DeviceManager implements Runnable {
     private Device selectDevice() throws Exception {
         Device device;
         synchronized (devices) {
-            for (int i = devicePointer; i < devices.size(); i++) {
+            for (int i = 0; i < devices.size(); i++) {
                 if ((device = devices.get(i)).isFree()) {
                     devicePointer = i;
                     return device;
