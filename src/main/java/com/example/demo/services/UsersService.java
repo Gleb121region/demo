@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,7 +38,7 @@ public class UsersService {
     }
 
     public User getUser(Long id) {
-        String cacheKey = "User_" + id;
+        String cacheKey = getCacheKey(id);
         User cachedUsers = (User) redisCacheManager.get(cacheKey).orElse(null);
         if (cachedUsers != null) {
             return cachedUsers;
@@ -91,23 +90,57 @@ public class UsersService {
         return result;
     }
 
-    public ResponseEntity<User> createUser(User user) {
-        redisCacheManager.evict("allUsers_");
+    public User createUser(User user) {
+        String cacheKey = getCacheKey(user.getId());
+        redisCacheManager.put(cacheKey, user);
+        List<User> allUser = getAllUsers();
+        allUser.add(user);
+        redisCacheManager.put("allUsers_", allUser);
         String url = API_URL + "/users";
-        return restTemplate.postForEntity(url, user, User.class);
+        return restTemplate.postForEntity(url, user, User.class).getBody();
     }
 
-    public ResponseEntity<User> updateUser(Long id, User user) {
-        redisCacheManager.evict("allUsers_");
+    public User updateUser(Long id, User user) {
+        String cacheKey = getCacheKey(user.getId());
+        redisCacheManager.put(cacheKey, user);
+        List<User> allUsers = getAllUsers();
+        for (User existingUser : allUsers) {
+            if (existingUser.getId().equals(id)) {
+                existingUser.setId(user.getId());
+                existingUser.setName(user.getName());
+                existingUser.setPhone(user.getPhone());
+                existingUser.setEmail(existingUser.getEmail());
+                existingUser.setCompany(existingUser.getCompany());
+                existingUser.setAddress(existingUser.getAddress());
+                existingUser.setWebsite(existingUser.getWebsite());
+                break;
+            }
+        }
+        redisCacheManager.put("allUsers_", allUsers);
         String url = API_URL + "/users/{id}";
         Map<String, Long> params = Collections.singletonMap("id", id);
-        return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(user), User.class, params);
+        return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(user), User.class, params).getBody();
     }
 
     public void deleteUser(Long id) {
-        redisCacheManager.evict("allUsers_");
+        String cacheKey = getCacheKey(id);
+        redisCacheManager.evict(cacheKey);
+        List<User> allUsers = new ArrayList<>(getAllUsers());
+        Iterator<User> iterator = allUsers.iterator();
+        while (iterator.hasNext()) {
+            User existingUser = iterator.next();
+            if (existingUser.getId().equals(id)) {
+                iterator.remove();
+                break;
+            }
+        }
+        redisCacheManager.put("allUsers_", allUsers);
         String url = API_URL + "/users/{id}";
         restTemplate.delete(url, id);
+    }
+
+    private static String getCacheKey(Long id) {
+        return "User_" + id;
     }
 
 }

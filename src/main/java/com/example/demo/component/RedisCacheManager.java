@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -13,6 +14,10 @@ public class RedisCacheManager {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void put(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    public void put(String key, List<Object> value) {
         redisTemplate.opsForValue().set(key, value);
     }
 

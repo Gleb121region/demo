@@ -49,7 +49,7 @@ public class AlbumService {
     }
 
     public Album getAlbum(Long id) {
-        String cacheKey = "Album_" + id;
+        String cacheKey = getCacheKey(id);
         Album cachedAlbum = (Album) redisCacheManager.get(cacheKey).orElse(null);
         if (cachedAlbum != null) {
             return cachedAlbum;
@@ -76,18 +76,27 @@ public class AlbumService {
     }
 
     public Album createAlbum(Album album) {
-        String cacheKey = "Album_" + album.getId();
+        String cacheKey = getCacheKey(album.getId());
         redisCacheManager.put(cacheKey, album);
         List<Album> allAlbums = getAllAlbums();
+        allAlbums.add(album);
         redisCacheManager.put("allAlbums", allAlbums);
         String url = API_URL + "/albums";
         return restTemplate.postForEntity(url, album, Album.class).getBody();
     }
 
     public Album updateAlbum(Long id, Album album) {
-        String cacheKey = "Album_" + id;
+        String cacheKey = getCacheKey(id);
         redisCacheManager.put(cacheKey, album);
         List<Album> allAlbums = getAllAlbums();
+        for (Album existingAlbum : allAlbums) {
+            if (existingAlbum.getId().equals(id)) {
+                existingAlbum.setId(album.getId());
+                existingAlbum.setTitle(album.getTitle());
+                existingAlbum.setUserId(album.getUserId());
+                break;
+            }
+        }
         redisCacheManager.put("allAlbums", allAlbums);
         String url = API_URL + "/albums/{id}";
         Map<String, Long> params = Collections.singletonMap("id", id);
@@ -95,12 +104,24 @@ public class AlbumService {
     }
 
     public void deleteAlbum(Long id) {
-        String cacheKey = "Album_" + id;
+        String cacheKey = getCacheKey(id);
         redisCacheManager.evict(cacheKey);
-        List<Album> allAlbums = getAllAlbums();
+        List<Album> allAlbums = new ArrayList<>(getAllAlbums());
+        Iterator<Album> iterator = allAlbums.iterator();
+        while (iterator.hasNext()) {
+            Album existingAlbum = iterator.next();
+            if (existingAlbum.getId().equals(id)) {
+                iterator.remove();
+                break;
+            }
+        }
         redisCacheManager.put("allAlbums", allAlbums);
         String url = API_URL + "/albums/{id}";
         restTemplate.delete(url, id);
+    }
+
+    private static String getCacheKey(Long id) {
+        return "Album_" + id;
     }
 
 }

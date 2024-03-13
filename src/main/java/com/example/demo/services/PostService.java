@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,7 +49,7 @@ public class PostService {
     }
 
     public Post getPost(Long id) {
-        String cacheKey = "Post_" + id;
+        String cacheKey = getCacheKey(id);
         Post cachedPosts = (Post) redisCacheManager.get(cacheKey).orElse(null);
         if (cachedPosts != null) {
             return cachedPosts;
@@ -89,22 +88,53 @@ public class PostService {
         return result;
     }
 
-    public ResponseEntity<Post> createPost(Post post) {
-        redisCacheManager.evict("allPosts_");
+    public Post createPost(Post post) {
+        String cacheKey = getCacheKey(post.getId());
+        redisCacheManager.put(cacheKey, post);
+        List<Post> allPosts = getAllPosts();
+        allPosts.add(post);
+        redisCacheManager.put("allPosts", allPosts);
         String url = API_URL + "/posts";
-        return restTemplate.postForEntity(url, post, Post.class);
+        return restTemplate.postForEntity(url, post, Post.class).getBody();
     }
 
-    public ResponseEntity<Post> updatePost(Long id, Post post) {
-        redisCacheManager.evict("allPosts_");
+    public Post updatePost(Long id, Post post) {
+        String cacheKey = getCacheKey(id);
+        redisCacheManager.put(cacheKey, post);
+        List<Post> allPosts = getAllPosts();
+        for (Post existingPost : allPosts) {
+            if (existingPost.getId().equals(id)) {
+                existingPost.setId(post.getId());
+                existingPost.setBody(post.getBody());
+                existingPost.setTitle(post.getTitle());
+                existingPost.setUserId(post.getUserId());
+                break;
+            }
+        }
+        redisCacheManager.put("allPosts", allPosts);
         String url = API_URL + "/posts/{id}";
         Map<String, Long> params = Collections.singletonMap("id", id);
-        return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(post), Post.class, params);
+        return restTemplate.exchange(url, HttpMethod.PUT, new HttpEntity<>(post), Post.class, params).getBody();
     }
 
     public void deletePost(Long id) {
-        redisCacheManager.evict("allPosts_");
+        String cacheKey = getCacheKey(id);
+        redisCacheManager.evict(cacheKey);
+        List<Post> allPosts = new ArrayList<>(getAllPosts());
+        Iterator<Post> iterator = allPosts.iterator();
+        while (iterator.hasNext()){
+            Post existingPost = iterator.next();
+            if ( existingPost.getId().equals(id)){
+                iterator.remove();
+                break;
+            }
+        }
+        redisCacheManager.put("allPosts", allPosts);
         String url = API_URL + "/posts/{id}";
         restTemplate.delete(url, id);
+    }
+
+    private static String getCacheKey(Long id) {
+        return "Post_" + id;
     }
 }

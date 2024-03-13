@@ -38,12 +38,12 @@ public class PostsController {
 
     @PostMapping("/posts")
     public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post).getBody();
+        return postService.createPost(post);
     }
 
     @PutMapping("/posts/{id}")
     public Post updatePost(@PathVariable Long id, @RequestBody Post post) {
-        return postService.updatePost(id, post).getBody();
+        return postService.updatePost(id, post);
     }
 
     @DeleteMapping("/posts/{id}")
